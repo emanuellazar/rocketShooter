@@ -70,8 +70,8 @@ public class GamePanel extends JPanel {
         //creating the rocket
         rocket = new Rocket(250, 430, true, true, 3);
         RocketController rocketController = new RocketController(rocket, rocketMissiles, this);
-        Thread thread1 = new Thread(rocketController);
-        thread1.start();
+        Thread rocketThread = new Thread(rocketController);
+        rocketThread.start();
 
         //creating the allien missles
         alienMissiles = new Missile[10];
@@ -97,7 +97,8 @@ public class GamePanel extends JPanel {
             aliens[i].setShootingAbility(i > 32);  //az also sornak adunk lovesi engedelyt
         }
 
-        AlienController alienController = new AlienController(aliens, this, alienMissiles, rocket, rocketMissiles, gameOverLabel, youWinLabel, rocketLives, scoreLabel);
+        AlienController alienController = new AlienController(aliens, this, alienMissiles, rocket, rocketMissiles, gameOverLabel, youWinLabel, rocketLives,
+                                                                scoreLabel, rocketThread, rocketMissleThreads, alienMissleThreads);
         Thread alienThread = new Thread(alienController);
         alienThread.start();
     }

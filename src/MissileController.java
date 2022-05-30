@@ -14,7 +14,7 @@ public class MissileController implements Runnable {
         int y;
         String direction;
         direction = missille.getDirection();
-        while (true) {
+        while (!Thread.interrupted()) {
             gamePanel.repaint();
             if (missille.getVisible()) {
                 y = missille.getY();
@@ -30,7 +30,8 @@ public class MissileController implements Runnable {
                         try {
                             Thread.sleep(10);
                         } catch (InterruptedException e) {
-                            System.out.println("Hiba a thread-ben");
+                            if(!Thread.interrupted())
+                                System.out.println("Hiba a misslecontrol thread-ben a rocket misslejainal");
                         }
                     }
                 }
@@ -46,7 +47,8 @@ public class MissileController implements Runnable {
                         try {
                             Thread.sleep(10);
                         } catch (InterruptedException e) {
-                            System.out.println("Hiba a thread-ben");
+                            if(!Thread.interrupted())
+                                System.out.println("Hiba a missileControler thread-ben az alienek misseljeinel");
                         }
                     }
                 }

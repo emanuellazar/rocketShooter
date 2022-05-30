@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class Alien extends Character {
-    private BufferedImage alienImgage;
+    private BufferedImage alienImage;
     private final int imageHeight;
     private final int imageWidth;
 
@@ -14,12 +14,12 @@ public class Alien extends Character {
         String[] characterChoice = new String[]{"black", "blue", "green", "orange", "pink", "yellow"};
         String fileName = "photos//" + characterChoice[colorID] + ".png";
         try {
-            alienImgage = ImageIO.read(new File(fileName));
+            alienImage = ImageIO.read(new File(fileName));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        imageHeight = alienImgage.getHeight();
-        imageWidth = alienImgage.getWidth();
+        imageHeight = alienImage.getHeight();
+        imageWidth = alienImage.getWidth();
         setVisibility(true);
     }
 
@@ -37,6 +37,6 @@ public class Alien extends Character {
     }
 
     private void drawAlien(Graphics g) {
-        g.drawImage(alienImgage, xPosition, yPosition, null);
+        g.drawImage(alienImage, xPosition, yPosition, null);
     }
 }

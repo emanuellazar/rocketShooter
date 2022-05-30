@@ -24,7 +24,7 @@ public class RocketController implements Runnable {
 
         Action shootOnSpace = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                int s = accesibleMissle();
+                int s = accessibleMissile();
                 rocketMissles[s].setX(rocket.getXPosition() + 20);
                 rocketMissles[s].setY(rocket.getYPosition() - 20);
                 rocketMissles[s].setVisible(true);
@@ -61,9 +61,10 @@ public class RocketController implements Runnable {
         gamePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("RIGHT"),
                 "moveRight");
         gamePanel.getActionMap().put("moveRight", moveRight);
+
     }
 
-    private int accesibleMissle() {
+    private int accessibleMissile() {
         Random rand = new Random();
         int r;
         do{

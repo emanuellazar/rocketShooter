@@ -13,7 +13,10 @@ public class AlienController implements Runnable {
     private final GamePanel gamePanel;
     private final Missile[] alienMissiles;
     private final Rocket rocket;
-    private final Missile[] rocketMissles;
+    private final Missile[] rocketMissiles;
+    private final Thread rocketThread;
+    private final Thread[] rocketMissileThreads;
+    private final Thread[] alienMissileThreads;
     private final JLabel gameOverLabel;
     private final JLabel youWinLabel;
     private final JLabel[] rocketLives;
@@ -21,16 +24,20 @@ public class AlienController implements Runnable {
     private int aliensAlive = 44;
     private int score = 0;
 
-    public AlienController(Alien[] aliens, GamePanel gamePanel, Missile[] alienMissiles, Rocket rocket, Missile[] rocketMissles, JLabel gameOverLabel, JLabel youWinLabel, JLabel[] rocketLives, JLabel scoreLabel) {
+    public AlienController(Alien[] aliens, GamePanel gamePanel, Missile[] alienMissiles, Rocket rocket, Missile[] rocketMissiles, JLabel gameOverLabel,
+                           JLabel youWinLabel, JLabel[] rocketLives, JLabel scoreLabel, Thread rocketThread, Thread[] rocketMissileThreads, Thread[] alienMissileThreads) {
         this.aliens = aliens;
         this.gamePanel = gamePanel;
         this.alienMissiles = alienMissiles;
         this.rocket = rocket;
-        this.rocketMissles = rocketMissles;
+        this.rocketMissiles = rocketMissiles;
         this.gameOverLabel = gameOverLabel;
         this.youWinLabel = youWinLabel;
         this.rocketLives = rocketLives;
         this.scoreLabel = scoreLabel;
+        this.rocketThread = rocketThread;
+        this.rocketMissileThreads = rocketMissileThreads;
+        this.alienMissileThreads = alienMissileThreads;
     }
 
     @Override
@@ -48,12 +55,16 @@ public class AlienController implements Runnable {
                     for (int h = 0; h < 3; h++) {
                         rocketLives[h].setVisible(false);
                     }
+                    stopAllThreads();
                     youWinLabel.setVisible(true);
+                    return;
                 }
                 //ha 3x meghaltunk vesztettunk, ezert a gameOver labelt megjelenitjuk
                 if (rocket.getLives() == 0)
                 {
+                    stopAllThreads();
                     gameOverLabel.setVisible(true);
+                    return;
                 }
                 //az urlenyek adott idokozonkent lonek
                 shoot++;
@@ -73,7 +84,7 @@ public class AlienController implements Runnable {
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
-                    System.out.println("Hiba a thread-ben");
+                    System.out.println("Hiba az alienoCntroller thread-ben urlenyek mozgatasakor vizszintes iranyba");
                 }
                 gamePanel.repaint();
             }
@@ -87,13 +98,15 @@ public class AlienController implements Runnable {
                 try {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
-                    System.out.println("Hiba a thread-ben");
+                    System.out.println("Hiba az alienoCntroller thread-ben urlenyek mozgatasakor fuggoleges iranyba");
                 }
                 gamePanel.repaint();
             }
             gamePanel.repaint();
             movingDistance *= -1;
         }
+        // the aliens got to the bottom of the panel
+        stopAllThreads();
         gameOverLabel.setVisible(true);
     }
 
@@ -141,26 +154,26 @@ public class AlienController implements Runnable {
     private void checkForCollisionWithAliens()
     {
         for (int i = 0; i<aliens.length; i++){
-            for(Missile j : rocketMissles)
-            if(j.getVisible() && aliens[i].getVisibility()){
-                if(isCollidingWithAlien(aliens[i],j))
-                {
-                    j.setVisible(false);
-                    aliens[i].setVisibility(false);
-                    aliens[i].setShootingAbility(false);
-                    aliensAlive--;
-                    int l = i - 11;
-                    while (l >= 0 && !aliens[l].getVisibility()) {
-                        l -= 11;
+            for(Missile j : rocketMissiles)
+                if(j.getVisible() && aliens[i].getVisibility()){
+                    if(isCollidingWithAlien(aliens[i],j))
+                    {
+                        j.setVisible(false);
+                        aliens[i].setVisibility(false);
+                        aliens[i].setShootingAbility(false);
+                        aliensAlive--;
+                        int l = i - 11;
+                        while (l >= 0 && !aliens[l].getVisibility()) {
+                            l -= 11;
+                        }
+                        if(l > 0) {
+                            aliens[l].setShootingAbility(true);
+                        }
+                        makeSound("sound//aliendyeing.wav");
+                        score += aliens[i].getColorID();
+                        scoreLabel.setText("Score: " + score);
                     }
-                    if(l > 0) {
-                        aliens[l].setShootingAbility(true);
-                    }
-                    makeSound("sound//aliendyeing.wav");
-                    score += aliens[i].getColorID();
-                    scoreLabel.setText("Score: " + score);
                 }
-            }
         }
     }
 
@@ -180,5 +193,15 @@ public class AlienController implements Runnable {
             ex.printStackTrace();
         }
         clip.start( );
+    }
+
+    private void stopAllThreads(){
+        for(Thread rocketMissileThread : rocketMissileThreads){
+            rocketMissileThread.interrupt();
+        }
+        for(Thread alienMissileThread : alienMissileThreads){
+            alienMissileThread.interrupt();
+        }
+        rocketThread.interrupt();
     }
 }
